@@ -149,8 +149,7 @@ RegisterNUICallback("PutIntoPlayer", function(data, cb)
         cb("ok")
     end)
 
-RegisterNUICallback("TakeFromPlayer",
-    function(data, cb)
+RegisterNUICallback("TakeFromPlayer", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end

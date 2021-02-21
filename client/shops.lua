@@ -45,7 +45,7 @@ RegisterNUICallback("BuyItem", function(data, cb)
             if shopZone == "custom" then
                 TriggerServerEvent("esx_inventoryhud:buyItem", data.item, count)
             else
-                TriggerServerEvent("esx_shops:buyItem", data.item.name, count, shopZone)
+                TriggerServerEvent(Config.Events["buyItem"], data.item.name, count, shopZone)
             end
         end
 

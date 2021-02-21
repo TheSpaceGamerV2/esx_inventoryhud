@@ -3,7 +3,7 @@ ESX = nil
 
 Citizen.CreateThread(function()
         while ESX == nil do
-            TriggerEvent("esx:getSharedObject", function(obj)
+            TriggerEvent(Config.Events["getSharedObject"], function(obj)
                     ESX = obj
                 end)
             Citizen.Wait(0)
@@ -81,7 +81,7 @@ RegisterNUICallback("GetNearPlayers", function(data, cb)
     end)
 
 RegisterNUICallback("UseItem", function(data, cb)
-        TriggerServerEvent("esx:useItem", data.item.name)
+        TriggerServerEvent(Config.Events["useItem"], data.item.name)
 
         if shouldCloseInventory(data.item.name) then
             closeInventory()
@@ -99,7 +99,7 @@ RegisterNUICallback("DropItem", function(data, cb)
         end
 
         if type(data.number) == "number" and math.floor(data.number) == data.number then
-            TriggerServerEvent("esx:removeInventoryItem", data.item.type, data.item.name, data.number)
+            TriggerServerEvent(Config.Events["removeInventoryItem"], data.item.type, data.item.name, data.number)
         end
 
         Wait(250)
@@ -108,8 +108,7 @@ RegisterNUICallback("DropItem", function(data, cb)
         cb("ok")
     end)
 
-RegisterNUICallback("GiveItem",
-    function(data, cb)
+RegisterNUICallback("GiveItem", function(data, cb)
         local playerPed = PlayerPedId()
         local players, nearbyPlayer = ESX.Game.GetPlayersInArea(GetEntityCoords(playerPed), 3.0)
         local foundPlayer = false
@@ -128,7 +127,7 @@ RegisterNUICallback("GiveItem",
                 count = GetAmmoInPedWeapon(PlayerPedId(), GetHashKey(data.item.name))
             end
 
-            TriggerServerEvent("esx:giveInventoryItem", data.player, data.item.type, data.item.name, count)
+            TriggerServerEvent(Config.Events["removeInventoryItem"], data.player, data.item.type, data.item.name, count)
             Wait(250)
             loadPlayerInventory()
         else
@@ -164,8 +163,7 @@ function shouldSkipAccount(accountName)
 end
 
 function loadPlayerInventory()
-    ESX.TriggerServerCallback("esx_inventoryhud:getPlayerInventory",
-        function(data)
+    ESX.TriggerServerCallback("esx_inventoryhud:getPlayerInventory", function(data)
             items = {}
             inventory = data.inventory
             accounts = data.accounts

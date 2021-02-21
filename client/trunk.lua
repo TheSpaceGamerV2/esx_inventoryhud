@@ -100,7 +100,7 @@ RegisterNUICallback("PutIntoTrunk", function(data, cb)
                 count = GetAmmoInPedWeapon(PlayerPedId(), GetHashKey(data.item.name))
             end
 
-            ESX.TriggerServerCallback("esx_vehicleshop:isPlateTaken", function(isPlateTaken)
+            ESX.TriggerServerCallback(Config.Events["isPlateTaken"], function(isPlateTaken)
                     TriggerServerEvent("esx_inventoryhud_trunk:putItem", trunkData.plate, data.item.type, data.item.name, count, trunkData.max, isPlateTaken, data.item.label)
                 end, trunkData.plate)
         end
@@ -117,7 +117,7 @@ RegisterNUICallback("TakeFromTrunk", function(data, cb)
         end
 
         if type(data.number) == "number" and math.floor(data.number) == data.number then
-            ESX.TriggerServerCallback("esx_vehicleshop:isPlateTaken", function(isPlateTaken)
+            ESX.TriggerServerCallback(Config.Events["isPlateTaken"], function(isPlateTaken)
                     TriggerServerEvent("esx_inventoryhud_trunk:getItem", trunkData.plate, data.item.type, data.item.name, tonumber(data.number), trunkData.max, isPlateTaken)
                 end, trunkData.plate)
         end

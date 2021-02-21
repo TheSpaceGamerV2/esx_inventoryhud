@@ -2,21 +2,21 @@ ESX.RegisterServerCallback("esx_inventoryhud:getStorageInventory", function(sour
         local targetXPlayer = ESX.GetPlayerFromId(target)
         local weapons, items, blackMoney
 
-        TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
+        TriggerEvent(Config.Events["getSharedDataStore"], storage, function(store)
                 weapons = store.get("weapons")
 
                 if weapons == nil then
                     weapons = {}
                 end
 
-                TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
+                TriggerEvent(Config.Events["getSharedInventory"], storage, function(inventory)
                         items = inventory.items
 
                         if items == nil then
                             items = {}
                         end
 
-                        TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney", function(account)
+                        TriggerEvent(Config.Events["getSharedAccount"], storage .. "_blackMoney", function(account)
                                 if account ~= nil then
                                     blackMoney = account.money
                                 else
@@ -37,7 +37,7 @@ AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item,
         if type == "item_standard" then
             local sourceItem = xPlayer.getInventoryItem(item)
 
-            TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
+            TriggerEvent(Config.Events["getSharedInventory"], storage, function(inventory)
                     local inventoryItem = inventory.getItem(item)
 
                     -- is there enough in the property?
@@ -70,7 +70,7 @@ AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item,
                     end
                 end)
         elseif type == "item_account" then
-            TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney", function(account)
+            TriggerEvent(Config.Events["getSharedAccount"], storage .. "_blackMoney", function(account)
                     local roomAccountMoney = account.money
 
                     if roomAccountMoney >= count then
@@ -87,7 +87,7 @@ AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item,
                     end
                 end)
         elseif type == "item_weapon" then
-            TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
+            TriggerEvent(Config.Events["getSharedDataStore"], storage, function(store)
                     local storeWeapons = store.get("weapons") or {}
                     local weaponName = nil
                     local ammo = nil
@@ -128,7 +128,7 @@ AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item,
             local playerItemCount = xPlayer.getInventoryItem(item).count
 
             if playerItemCount >= count and count > 0 then
-                TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
+                TriggerEvent(Config.Events["getSharedInventory"], storage, function(inventory)
                         xPlayer.removeInventoryItem(item, count)
                         inventory.addItem(item, count)
 
@@ -154,7 +154,7 @@ AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item,
             if playerAccountMoney >= count and count > 0 then
                 xPlayer.removeAccountMoney(item, count)
 
-                TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney",
+                TriggerEvent(Config.Events["getSharedAccount"], storage .. "_blackMoney",
                     function(account)
                         account.addMoney(count)
 
@@ -168,7 +168,7 @@ AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item,
                     })
             end
         elseif type == "item_weapon" then
-            TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
+            TriggerEvent(Config.Events["getSharedDataStore"], storage, function(store)
                     local storeWeapons = store.get("weapons") or {}
 
                     local pos, playerWeapon = xPlayer.getWeapon(item)

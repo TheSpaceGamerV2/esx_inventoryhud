@@ -6,7 +6,7 @@ AddEventHandler("esx_inventoryhud:openPropertyInventory",
     end)
 
 function refreshPropertyInventory()
-    ESX.TriggerServerCallback("esx_property:getPropertyInventory", function(inventory)
+    ESX.TriggerServerCallback(Config.Events["getPropertyInventory"], function(inventory)
             setPropertyInventoryData(inventory)
         end, ESX.GetPlayerData().identifier)
 end
@@ -81,8 +81,7 @@ function openPropertyInventory()
     SetNuiFocus(true, true)
 end
 
-RegisterNUICallback("PutIntoProperty",
-    function(data, cb)
+RegisterNUICallback("PutIntoProperty", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -94,7 +93,7 @@ RegisterNUICallback("PutIntoProperty",
                 count = GetAmmoInPedWeapon(PlayerPedId(), GetHashKey(data.item.name))
             end
 
-            TriggerServerEvent("esx_property:putItem", ESX.GetPlayerData().identifier, data.item.type, data.item.name, count)
+            TriggerServerEvent(Config.Events["putItem"], ESX.GetPlayerData().identifier, data.item.type, data.item.name, count)
         end
 
         Wait(150)
@@ -105,14 +104,13 @@ RegisterNUICallback("PutIntoProperty",
         cb("ok")
     end)
 
-RegisterNUICallback("TakeFromProperty",
-    function(data, cb)
+RegisterNUICallback("TakeFromProperty", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
 
         if type(data.number) == "number" and math.floor(data.number) == data.number then
-            TriggerServerEvent("esx_property:getItem", ESX.GetPlayerData().identifier, data.item.type, data.item.name, tonumber(data.number))
+            TriggerServerEvent(Config.Events["getItem"], ESX.GetPlayerData().identifier, data.item.type, data.item.name, tonumber(data.number))
         end
 
         Wait(150)
