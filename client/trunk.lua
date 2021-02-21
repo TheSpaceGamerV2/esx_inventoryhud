@@ -1,31 +1,23 @@
-local trunkData = nil
+local trunkData
 
 RegisterNetEvent("esx_inventoryhud:openTrunkInventory")
-AddEventHandler(
-    "esx_inventoryhud:openTrunkInventory",
-    function(data, blackMoney, inventory, weapons)
+AddEventHandler("esx_inventoryhud:openTrunkInventory", function(data, blackMoney, inventory, weapons)
         setTrunkInventoryData(data, blackMoney, inventory, weapons)
         openTrunkInventory()
-    end
-)
+    end)
 
 RegisterNetEvent("esx_inventoryhud:refreshTrunkInventory")
-AddEventHandler(
-    "esx_inventoryhud:refreshTrunkInventory",
-    function(data, blackMoney, inventory, weapons)
+AddEventHandler("esx_inventoryhud:refreshTrunkInventory", function(data, blackMoney, inventory, weapons)
         setTrunkInventoryData(data, blackMoney, inventory, weapons)
-    end
-)
+    end)
 
 function setTrunkInventoryData(data, blackMoney, inventory, weapons)
     trunkData = data
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "setInfoText",
             text = data.text
-        }
-    )
+        })
 
     items = {}
 
@@ -73,37 +65,30 @@ function setTrunkInventoryData(data, blackMoney, inventory, weapons)
                         usable = false,
                         rare = false,
                         canRemove = false
-                    }
-                )
+                    })
             end
         end
     end
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "setSecondInventoryItems",
             itemList = items
-        }
-    )
+        })
 end
 
 function openTrunkInventory()
     loadPlayerInventory()
     isInInventory = true
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "display",
             type = "trunk"
-        }
-    )
+        })
 
     SetNuiFocus(true, true)
 end
 
-RegisterNUICallback(
-    "PutIntoTrunk",
-    function(data, cb)
+RegisterNUICallback("PutIntoTrunk", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -115,42 +100,30 @@ RegisterNUICallback(
                 count = GetAmmoInPedWeapon(PlayerPedId(), GetHashKey(data.item.name))
             end
 
-            ESX.TriggerServerCallback(
-                "esx_vehicleshop:isPlateTaken",
-                function(isPlateTaken)
+            ESX.TriggerServerCallback("esx_vehicleshop:isPlateTaken", function(isPlateTaken)
                     TriggerServerEvent("esx_inventoryhud_trunk:putItem", trunkData.plate, data.item.type, data.item.name, count, trunkData.max, isPlateTaken, data.item.label)
-                end,
-                trunkData.plate
-            )
+                end, trunkData.plate)
         end
 
         Wait(250)
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "TakeFromTrunk",
-    function(data, cb)
+RegisterNUICallback("TakeFromTrunk", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
 
         if type(data.number) == "number" and math.floor(data.number) == data.number then
-            ESX.TriggerServerCallback(
-                "esx_vehicleshop:isPlateTaken",
-                function(isPlateTaken)
+            ESX.TriggerServerCallback("esx_vehicleshop:isPlateTaken", function(isPlateTaken)
                     TriggerServerEvent("esx_inventoryhud_trunk:getItem", trunkData.plate, data.item.type, data.item.name, tonumber(data.number), trunkData.max, isPlateTaken)
-                end,
-                trunkData.plate
-            )
+                end, trunkData.plate)
         end
 
         Wait(250)
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)

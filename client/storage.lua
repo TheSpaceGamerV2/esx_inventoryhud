@@ -1,30 +1,20 @@
-local lastStorage = nil
+local lastStorage
 
 RegisterNetEvent("esx_inventoryhud:openStorageInventory")
-AddEventHandler(
-    "esx_inventoryhud:openStorageInventory",
-    function(storage)
+AddEventHandler("esx_inventoryhud:openStorageInventory", function(storage)
         lastStorage = storage
 
-        ESX.TriggerServerCallback(
-            "esx_inventoryhud:getStorageInventory",
-            function(storageData)
+        ESX.TriggerServerCallback("esx_inventoryhud:getStorageInventory", function(storageData)
                 setStorageInventoryData(storageData)
                 openStorageInventory()
-            end,
-            storage
-        )
-    end
-)
+            end, storage)
+    end)
 
 function refreshStorageInventory()
-    ESX.TriggerServerCallback(
-        "esx_inventoryhud:getStorageInventory",
+    ESX.TriggerServerCallback("esx_inventoryhud:getStorageInventory",
         function(storageData)
             setStorageInventoryData(storageData)
-        end,
-        lastStorage
-    )
+        end, lastStorage)
 end
 
 function setStorageInventoryData(data)
@@ -66,9 +56,7 @@ function setStorageInventoryData(data)
         local weapon = storageWeapons[i]
 
         if storageWeapons[i].name ~= "WEAPON_UNARMED" then
-            table.insert(
-                items,
-                {
+            table.insert(items, {
                     label = ESX.GetWeaponLabel(weapon.name),
                     count = weapon.ammo,
                     limit = -1,
@@ -77,36 +65,29 @@ function setStorageInventoryData(data)
                     usable = false,
                     rare = false,
                     canRemove = false
-                }
-            )
+                })
         end
     end
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "setSecondInventoryItems",
             itemList = items
-        }
-    )
+        })
 end
 
 function openStorageInventory()
     loadPlayerInventory()
     isInInventory = true
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "display",
             type = "storage"
-        }
-    )
+    })
 
     SetNuiFocus(true, true)
 end
 
-RegisterNUICallback(
-    "PutIntoStorage",
-    function(data, cb)
+RegisterNUICallback("PutIntoStorage", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -127,12 +108,9 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "TakeFromStorage",
-    function(data, cb)
+RegisterNUICallback("TakeFromStorage", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -147,5 +125,4 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)

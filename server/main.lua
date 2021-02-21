@@ -1,15 +1,10 @@
 ESX = nil
 
-TriggerEvent(
-	"esx:getSharedObject",
-	function(obj)
+TriggerEvent("esx:getSharedObject", function(obj)
 		ESX = obj
-	end
-)
+	end)
 
-ESX.RegisterServerCallback(
-	"esx_inventoryhud:getPlayerInventory",
-	function(source, cb, target)
+ESX.RegisterServerCallback("esx_inventoryhud:getPlayerInventory", function(source, cb, target)
 		local targetXPlayer = ESX.GetPlayerFromId(target)
 
 		if targetXPlayer ~= nil then
@@ -17,13 +12,10 @@ ESX.RegisterServerCallback(
 		else
 			cb(nil)
 		end
-	end
-)
+	end)
 
 RegisterServerEvent("esx_inventoryhud:tradePlayerItem")
-AddEventHandler(
-	"esx_inventoryhud:tradePlayerItem",
-	function(from, target, type, itemName, itemCount)
+AddEventHandler("esx_inventoryhud:tradePlayerItem", function(from, target, type, itemName, itemCount)
 		local _source = from
 
 		local sourceXPlayer = ESX.GetPlayerFromId(_source)
@@ -67,12 +59,9 @@ AddEventHandler(
 				end
 			end
 		end
-	end
-)
+	end)
 
-RegisterCommand(
-	"openinventory",
-	function(source, args, rawCommand)
+RegisterCommand("openinventory", function(source, args, rawCommand)
 		if IsPlayerAceAllowed(source, "inventory.openinventory") then
 			local target = tonumber(args[1])
 			local targetXPlayer = ESX.GetPlayerFromId(target)
@@ -85,13 +74,10 @@ RegisterCommand(
 		else
 			TriggerClientEvent("chatMessage", source, "^1" .. _U("no_permissions"))
 		end
-	end
-)
+	end)
 
 RegisterServerEvent("esx_inventoryhud:buyItem")
-AddEventHandler(
-	"esx_inventoryhud:buyItem",
-	function(item, amount)
+AddEventHandler("esx_inventoryhud:buyItem", function(item, amount)
 		local _source = source
 		local xPlayer = ESX.GetPlayerFromId(_source)
 
@@ -100,15 +86,11 @@ AddEventHandler(
 
 			if amount > 0 then
 				if playerItem.limit ~= -1 and (playerItem.count + amount) > playerItem.limit then
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						_source,
-						{
+					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("not_enough_space"),
 							type = "error",
 							timeout = 3000
-						}
-					)
+						})
 				else
 					local price = amount * item.price
 
@@ -116,25 +98,17 @@ AddEventHandler(
 						xPlayer.removeMoney(price)
 						xPlayer.addInventoryItem(item.name, amount)
 
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							_source,
-							{
+						TriggerClientEvent("pNotify:SendNotification", _source, {
 								text = _U("bought", amount, item.label, item.price),
 								type = "success",
 								timeout = 3000
-							}
-						)
+							})
 					else
-						TriggerClientEvent(
-							"pNotify:SendNotification",
-							_source,
-							{
+						TriggerClientEvent("pNotify:SendNotification", _source, {
 								text = _U("not_enough_money"),
 								type = "error",
 								timeout = 3000
-							}
-						)
+							})
 					end
 				end
 			end
@@ -144,37 +118,25 @@ AddEventHandler(
 					xPlayer.removeMoney(item.price)
 					xPlayer.addWeapon(item.name, item.ammo)
 
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						_source,
-						{
+					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("bought", 1, item.label, item.price),
 							type = "success",
 							timeout = 3000
-						}
-					)
+						})
 				else
-					TriggerClientEvent(
-						"pNotify:SendNotification",
-						_source,
-						{
+					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("already_have_weapon"),
 							type = "error",
 							timeout = 3000
-						}
-					)
+						})
 				end
 			else
-				TriggerClientEvent(
-					"pNotify:SendNotification",
-					_source,
+				TriggerClientEvent("pNotify:SendNotification", _source,
 					{
 						text = _U("not_enough_money"),
 						type = "error",
 						timeout = 3000
-					}
-				)
+					})
 			end
 		end
-	end
-)
+	end)

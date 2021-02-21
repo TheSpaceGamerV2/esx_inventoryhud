@@ -1,53 +1,36 @@
 local targetPlayer
 local targetPlayerName
 
-Citizen.CreateThread(
-    function()
-        TriggerEvent(
-            "chat:addSuggestion",
-            "/openinventory",
-            _U("openinv_help"),
-            {
+Citizen.CreateThread( function()
+        TriggerEvent("chat:addSuggestion", "/openinventory", _U("openinv_help"), {
                 {name = _U("openinv_id"), help = _U("openinv_help")}
-            }
-        )
-    end
-)
+            })
+    end)
 
-AddEventHandler(
-    "onResourceStop",
-    function(resource)
+AddEventHandler("onResourceStop", function(resource)
         if resource == GetCurrentResourceName() then
             TriggerEvent("chat:removeSuggestion", "/openinventory")
         end
-    end
-)
+    end)
 
 RegisterNetEvent("esx_inventoryhud:openPlayerInventory")
-AddEventHandler(
-    "esx_inventoryhud:openPlayerInventory",
-    function(target, playerName)
+AddEventHandler("esx_inventoryhud:openPlayerInventory", function(target, playerName)
         targetPlayer = target
         targetPlayerName = playerName
         setPlayerInventoryData()
         openPlayerInventory()
-    end
-)
+    end)
 
 function refreshPlayerInventory()
     setPlayerInventoryData()
 end
 
 function setPlayerInventoryData()
-    ESX.TriggerServerCallback(
-        "esx_inventoryhud:getPlayerInventory",
-        function(data)
-            SendNUIMessage(
-                {
+    ESX.TriggerServerCallback("esx_inventoryhud:getPlayerInventory", function(data)
+            SendNUIMessage({
                     action = "setInfoText",
                     text = "<strong>" .. _U("player_inventory") .. "</strong><br>" .. targetPlayerName .. " (" .. targetPlayer .. ")"
-                }
-            )
+                })
 
             items = {}
             inventory = data.inventory
@@ -111,9 +94,7 @@ function setPlayerInventoryData()
                     local playerPed = GetPlayerPed(GetPlayerFromServerId(targetPlayer))
                     if weapons[key].name ~= "WEAPON_UNARMED" then
                         local ammo = weapons[key].ammo
-                        table.insert(
-                            items,
-                            {
+                        table.insert(items, {
                                 label = weapons[key].label,
                                 count = ammo,
                                 limit = -1,
@@ -122,40 +103,31 @@ function setPlayerInventoryData()
                                 usable = false,
                                 rare = false,
                                 canRemove = true
-                            }
-                        )
+                            })
                     end
                 end
             end
 
-            SendNUIMessage(
-                {
+            SendNUIMessage({
                     action = "setSecondInventoryItems",
                     itemList = items
-                }
-            )
-        end,
-        targetPlayer
-    )
+                })
+        end, targetPlayer)
 end
 
 function openPlayerInventory()
     loadPlayerInventory()
     isInInventory = true
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "display",
             type = "player"
-        }
-    )
+        })
 
     SetNuiFocus(true, true)
 end
 
-RegisterNUICallback(
-    "PutIntoPlayer",
-    function(data, cb)
+RegisterNUICallback("PutIntoPlayer", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -175,11 +147,9 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "TakeFromPlayer",
+RegisterNUICallback("TakeFromPlayer",
     function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
@@ -200,5 +170,4 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)

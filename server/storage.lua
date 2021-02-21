@@ -1,33 +1,22 @@
-ESX.RegisterServerCallback(
-    "esx_inventoryhud:getStorageInventory",
-    function(source, cb, storage)
+ESX.RegisterServerCallback("esx_inventoryhud:getStorageInventory", function(source, cb, storage)
         local targetXPlayer = ESX.GetPlayerFromId(target)
         local weapons, items, blackMoney
 
-        TriggerEvent(
-            "esx_datastore:getSharedDataStore",
-            storage,
-            function(store)
+        TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
                 weapons = store.get("weapons")
 
                 if weapons == nil then
                     weapons = {}
                 end
 
-                TriggerEvent(
-                    "esx_addoninventory:getSharedInventory",
-                    storage,
-                    function(inventory)
+                TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
                         items = inventory.items
 
                         if items == nil then
                             items = {}
                         end
 
-                        TriggerEvent(
-                            "esx_addonaccount:getSharedAccount",
-                            storage .. "_blackMoney",
-                            function(account)
+                        TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney", function(account)
                                 if account ~= nil then
                                     blackMoney = account.money
                                 else
@@ -35,78 +24,53 @@ ESX.RegisterServerCallback(
                                 end
 
                                 cb({inventory = items, blackMoney = blackMoney, weapons = weapons})
-                            end
-                        )
-                    end
-                )
-            end
-        )
-    end
-)
+                            end)
+                    end)
+            end)
+    end)
 
 RegisterServerEvent("esx_inventoryhud:getStorageItem")
-AddEventHandler(
-    "esx_inventoryhud:getStorageItem",
-    function(storage, type, item, count)
+AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item, count)
         local _source = source
         local xPlayer = ESX.GetPlayerFromId(_source)
 
         if type == "item_standard" then
             local sourceItem = xPlayer.getInventoryItem(item)
 
-            TriggerEvent(
-                "esx_addoninventory:getSharedInventory",
-                storage,
-                function(inventory)
+            TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
                     local inventoryItem = inventory.getItem(item)
 
                     -- is there enough in the property?
                     if count > 0 and inventoryItem.count >= count then
                         -- can the player carry the said amount of x item?
                         if sourceItem.limit ~= -1 and (sourceItem.count + count) > sourceItem.limit then
-                            TriggerClientEvent(
-                                "pNotify:SendNotification",
-                                _source,
-                                {
+                            TriggerClientEvent("pNotify:SendNotification",_source, {
                                     text = _U("not_enough_space"),
                                     type = "error",
                                     timeout = 3000
-                                }
-                            )
+                                })
                         else
                             inventory.removeItem(item, count)
                             xPlayer.addInventoryItem(item, count)
 
                             TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "TAKE", inventoryItem.label, count, inventoryItem.count - count)
 
-                            TriggerClientEvent(
-                                "pNotify:SendNotification",
-                                _source,
-                                {
+                            TriggerClientEvent("pNotify:SendNotification", _source, {
                                     text = _U("took_from_storage", count, inventoryItem.label),
                                     type = "success",
                                     timeout = 3000
-                                }
-                            )
+                                })
                         end
                     else
-                        TriggerClientEvent(
-                            "pNotify:SendNotification",
-                            _source,
-                            {
+                        TriggerClientEvent("pNotify:SendNotification", _source, {
                                 text = _U("took_not_enough"),
                                 type = "error",
                                 timeout = 3000
-                            }
-                        )
+                            })
                     end
-                end
-            )
+                end)
         elseif type == "item_account" then
-            TriggerEvent(
-                "esx_addonaccount:getSharedAccount",
-                storage .. "_blackMoney",
-                function(account)
+            TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney", function(account)
                     local roomAccountMoney = account.money
 
                     if roomAccountMoney >= count then
@@ -115,23 +79,15 @@ AddEventHandler(
 
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "TAKE", "Špinavé prachy", count, roomAccountMoney)
                     else
-                        TriggerClientEvent(
-                            "pNotify:SendNotification",
-                            xPlayer.source,
-                            {
+                        TriggerClientEvent("pNotify:SendNotification",xPlayer.source, {
                                 text = _U("bad_amount"),
                                 type = "error",
                                 timeout = 3000
-                            }
-                        )
+                            })
                     end
-                end
-            )
+                end)
         elseif type == "item_weapon" then
-            TriggerEvent(
-                "esx_datastore:getSharedDataStore",
-                storage,
-                function(store)
+            TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
                     local storeWeapons = store.get("weapons") or {}
                     local weaponName = nil
                     local ammo = nil
@@ -159,16 +115,12 @@ AddEventHandler(
                     for i = 1, #components do
                         xPlayer.addWeaponComponent(weaponName, components[i])
                     end
-                end
-            )
+                end)
         end
-    end
-)
+    end)
 
 RegisterServerEvent("esx_inventoryhud:putStorageItem")
-AddEventHandler(
-    "esx_inventoryhud:putStorageItem",
-    function(storage, type, item, count)
+AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item, count)
         local _source = source
         local xPlayer = ESX.GetPlayerFromId(_source)
 
@@ -176,37 +128,25 @@ AddEventHandler(
             local playerItemCount = xPlayer.getInventoryItem(item).count
 
             if playerItemCount >= count and count > 0 then
-                TriggerEvent(
-                    "esx_addoninventory:getSharedInventory",
-                    storage,
-                    function(inventory)
+                TriggerEvent("esx_addoninventory:getSharedInventory", storage, function(inventory)
                         xPlayer.removeInventoryItem(item, count)
                         inventory.addItem(item, count)
 
                         local inventoryItem = inventory.getItem(item)
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "PUT", inventoryItem.label, count, inventoryItem.count)
 
-                        TriggerClientEvent(
-                            "pNotify:SendNotification",
-                            _source,
-                            {
+                        TriggerClientEvent("pNotify:SendNotification", _source, {
                                 text = _U("put_into_storage", count, inventoryItem.label),
                                 type = "success",
                                 timeout = 3000
-                            }
-                        )
-                    end
-                )
+                            })
+                    end)
             else
-                TriggerClientEvent(
-                    "pNotify:SendNotification",
-                    xPlayer.source,
-                    {
+                TriggerClientEvent("pNotify:SendNotification", xPlayer.source, {
                         text = _U("bad_amount"),
                         type = "error",
                         timeout = 3000
-                    }
-                )
+                    })
             end
         elseif type == "item_account" then
             local playerAccountMoney = xPlayer.getAccount(item).money
@@ -214,31 +154,21 @@ AddEventHandler(
             if playerAccountMoney >= count and count > 0 then
                 xPlayer.removeAccountMoney(item, count)
 
-                TriggerEvent(
-                    "esx_addonaccount:getSharedAccount",
-                    storage .. "_blackMoney",
+                TriggerEvent("esx_addonaccount:getSharedAccount", storage .. "_blackMoney",
                     function(account)
                         account.addMoney(count)
 
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "PUT", "Špinavé prachy", count, account.money + count)
-                    end
-                )
+                    end)
             else
-                TriggerClientEvent(
-                    "pNotify:SendNotification",
-                    xPlayer.source,
-                    {
+                TriggerClientEvent("pNotify:SendNotification", xPlayer.source, {
                         text = _U("bad_amount"),
                         type = "error",
                         timeout = 3000
-                    }
-                )
+                    })
             end
         elseif type == "item_weapon" then
-            TriggerEvent(
-                "esx_datastore:getSharedDataStore",
-                storage,
-                function(store)
+            TriggerEvent("esx_datastore:getSharedDataStore", storage, function(store)
                     local storeWeapons = store.get("weapons") or {}
 
                     local pos, playerWeapon = xPlayer.getWeapon(item)
@@ -247,21 +177,16 @@ AddEventHandler(
                         components = {}
                     end
 
-                    table.insert(
-                        storeWeapons,
-                        {
+                    table.insert(storeWeapons, {
                             name = item,
                             ammo = count,
                             components = components
-                        }
-                    )
+                        })
 
                     TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "PUT", item, count, count)
 
                     store.set("weapons", storeWeapons)
                     xPlayer.removeWeapon(item)
-                end
-            )
+                end)
         end
-    end
-)
+    end)

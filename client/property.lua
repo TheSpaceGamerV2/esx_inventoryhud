@@ -1,20 +1,14 @@
 RegisterNetEvent("esx_inventoryhud:openPropertyInventory")
-AddEventHandler(
-    "esx_inventoryhud:openPropertyInventory",
+AddEventHandler("esx_inventoryhud:openPropertyInventory",
     function(data)
         setPropertyInventoryData(data)
         openPropertyInventory()
-    end
-)
+    end)
 
 function refreshPropertyInventory()
-    ESX.TriggerServerCallback(
-        "esx_property:getPropertyInventory",
-        function(inventory)
+    ESX.TriggerServerCallback("esx_property:getPropertyInventory", function(inventory)
             setPropertyInventoryData(inventory)
-        end,
-        ESX.GetPlayerData().identifier
-    )
+        end, ESX.GetPlayerData().identifier)
 end
 
 function setPropertyInventoryData(data)
@@ -56,9 +50,7 @@ function setPropertyInventoryData(data)
         local weapon = propertyWeapons[i]
 
         if propertyWeapons[i].name ~= "WEAPON_UNARMED" then
-            table.insert(
-                items,
-                {
+            table.insert(items, {
                     label = ESX.GetWeaponLabel(weapon.name),
                     count = weapon.ammo,
                     limit = -1,
@@ -67,35 +59,29 @@ function setPropertyInventoryData(data)
                     usable = false,
                     rare = false,
                     canRemove = false
-                }
-            )
+                })
         end
     end
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "setSecondInventoryItems",
             itemList = items
-        }
-    )
+        })
 end
 
 function openPropertyInventory()
     loadPlayerInventory()
     isInInventory = true
 
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "display",
             type = "property"
-        }
-    )
+        })
 
     SetNuiFocus(true, true)
 end
 
-RegisterNUICallback(
-    "PutIntoProperty",
+RegisterNUICallback("PutIntoProperty",
     function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
@@ -117,11 +103,9 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "TakeFromProperty",
+RegisterNUICallback("TakeFromProperty",
     function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
@@ -137,5 +121,4 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)

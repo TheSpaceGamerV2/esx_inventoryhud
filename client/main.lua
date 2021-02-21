@@ -1,143 +1,49 @@
-local Keys = {
-    ["ESC"] = 322,
-    ["F1"] = 288,
-    ["F2"] = 289,
-    ["F3"] = 170,
-    ["F5"] = 166,
-    ["F6"] = 167,
-    ["F7"] = 168,
-    ["F8"] = 169,
-    ["F9"] = 56,
-    ["F10"] = 57,
-    ["~"] = 243,
-    ["1"] = 157,
-    ["2"] = 158,
-    ["3"] = 160,
-    ["4"] = 164,
-    ["5"] = 165,
-    ["6"] = 159,
-    ["7"] = 161,
-    ["8"] = 162,
-    ["9"] = 163,
-    ["-"] = 84,
-    ["="] = 83,
-    ["BACKSPACE"] = 177,
-    ["TAB"] = 37,
-    ["Q"] = 44,
-    ["W"] = 32,
-    ["E"] = 38,
-    ["R"] = 45,
-    ["T"] = 245,
-    ["Y"] = 246,
-    ["U"] = 303,
-    ["P"] = 199,
-    ["["] = 39,
-    ["]"] = 40,
-    ["ENTER"] = 18,
-    ["CAPS"] = 137,
-    ["A"] = 34,
-    ["S"] = 8,
-    ["D"] = 9,
-    ["F"] = 23,
-    ["G"] = 47,
-    ["H"] = 74,
-    ["K"] = 311,
-    ["L"] = 182,
-    ["LEFTSHIFT"] = 21,
-    ["Z"] = 20,
-    ["X"] = 73,
-    ["C"] = 26,
-    ["V"] = 0,
-    ["B"] = 29,
-    ["N"] = 249,
-    ["M"] = 244,
-    [","] = 82,
-    ["."] = 81,
-    ["LEFTCTRL"] = 36,
-    ["LEFTALT"] = 19,
-    ["SPACE"] = 22,
-    ["RIGHTCTRL"] = 70,
-    ["HOME"] = 213,
-    ["PAGEUP"] = 10,
-    ["PAGEDOWN"] = 11,
-    ["DELETE"] = 178,
-    ["LEFT"] = 174,
-    ["RIGHT"] = 175,
-    ["TOP"] = 27,
-    ["DOWN"] = 173,
-    ["NENTER"] = 201,
-    ["N4"] = 108,
-    ["N5"] = 60,
-    ["N6"] = 107,
-    ["N+"] = 96,
-    ["N-"] = 97,
-    ["N7"] = 117,
-    ["N8"] = 61,
-    ["N9"] = 118
-}
-
 isInInventory = false
 ESX = nil
 
-Citizen.CreateThread(
-    function()
+Citizen.CreateThread(function()
         while ESX == nil do
-            TriggerEvent(
-                "esx:getSharedObject",
-                function(obj)
+            TriggerEvent("esx:getSharedObject", function(obj)
                     ESX = obj
-                end
-            )
+                end)
             Citizen.Wait(0)
         end
-    end
-)
+    end)
 
-Citizen.CreateThread(
-    function()
+Citizen.CreateThread(function()
         while true do
             Citizen.Wait(0)
             if IsControlJustReleased(0, Config.OpenControl) and IsInputDisabled(0) then
                 openInventory()
             end
         end
-    end
-)
+    end)
 
 function openInventory()
     loadPlayerInventory()
     isInInventory = true
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "display",
             type = "normal"
-        }
-    )
+        })
     SetNuiFocus(true, true)
 end
 
 function closeInventory()
     isInInventory = false
-    SendNUIMessage(
-        {
+    SendNUIMessage({
             action = "hide"
-        }
-    )
+        })
     SetNuiFocus(false, false)
 end
 
-RegisterNUICallback(
-    "NUIFocusOff",
-    function(data, cb)
+RegisterNUICallback("NUIFocusOff", function(data, cb)
         closeInventory()
         TriggerEvent("esx_inventoryhud:onClosedInventory", data.type)
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "GetNearPlayers",
-    function(data, cb)
+RegisterNUICallback("GetNearPlayers", function(data, cb)
         local playerPed = PlayerPedId()
         local players, nearbyPlayer = ESX.Game.GetPlayersInArea(GetEntityCoords(playerPed), 3.0)
         local foundPlayers = false
@@ -147,44 +53,34 @@ RegisterNUICallback(
             if players[i] ~= PlayerId() then
                 foundPlayers = true
 
-                table.insert(
-                    elements,
-                    {
+                table.insert(elements, {
                         label = GetPlayerName(players[i]),
                         player = GetPlayerServerId(players[i])
-                    }
-                )
+                    })
             end
         end
 
         if not foundPlayers then
-            exports.pNotify:SendNotification(
-                {
+            exports.pNotify:SendNotification({
                     text = _U("players_nearby"),
                     type = "error",
                     timeout = 3000,
                     layout = "bottomCenter",
                     queue = "inventoryhud"
-                }
-            )
+                })
         else
-            SendNUIMessage(
-                {
+            SendNUIMessage({
                     action = "nearPlayers",
                     foundAny = foundPlayers,
                     players = elements,
                     item = data.item
-                }
-            )
+                })
         end
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "UseItem",
-    function(data, cb)
+RegisterNUICallback("UseItem", function(data, cb)
         TriggerServerEvent("esx:useItem", data.item.name)
 
         if shouldCloseInventory(data.item.name) then
@@ -195,12 +91,9 @@ RegisterNUICallback(
         end
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "DropItem",
-    function(data, cb)
+RegisterNUICallback("DropItem", function(data, cb)
         if IsPedSittingInAnyVehicle(playerPed) then
             return
         end
@@ -213,11 +106,9 @@ RegisterNUICallback(
         loadPlayerInventory()
 
         cb("ok")
-    end
-)
+    end)
 
-RegisterNUICallback(
-    "GiveItem",
+RegisterNUICallback("GiveItem",
     function(data, cb)
         local playerPed = PlayerPedId()
         local players, nearbyPlayer = ESX.Game.GetPlayersInArea(GetEntityCoords(playerPed), 3.0)
@@ -241,19 +132,16 @@ RegisterNUICallback(
             Wait(250)
             loadPlayerInventory()
         else
-            exports.pNotify:SendNotification(
-                {
+            exports.pNotify:SendNotification({
                     text = _U("player_nearby"),
                     type = "error",
                     timeout = 3000,
                     layout = "bottomCenter",
                     queue = "inventoryhud"
-                }
-            )
+                })
         end
         cb("ok")
-    end
-)
+    end)
 
 function shouldCloseInventory(itemName)
     for index, value in ipairs(Config.CloseUiItems) do
@@ -276,8 +164,7 @@ function shouldSkipAccount(accountName)
 end
 
 function loadPlayerInventory()
-    ESX.TriggerServerCallback(
-        "esx_inventoryhud:getPlayerInventory",
+    ESX.TriggerServerCallback("esx_inventoryhud:getPlayerInventory",
         function(data)
             items = {}
             inventory = data.inventory
@@ -350,25 +237,20 @@ function loadPlayerInventory()
                                 usable = false,
                                 rare = false,
                                 canRemove = true
-                            }
-                        )
+                            })
                     end
                 end
             end
 
-            SendNUIMessage(
-                {
+            SendNUIMessage({
                     action = "setItems",
                     itemList = items
-                }
-            )
+                })
         end,
-        GetPlayerServerId(PlayerId())
-    )
+        GetPlayerServerId(PlayerId()))
 end
 
-Citizen.CreateThread(
-    function()
+Citizen.CreateThread( function()
         while true do
             Citizen.Wait(1)
             if isInInventory then
@@ -379,33 +261,33 @@ Citizen.CreateThread(
                 DisableControlAction(0, 257, true) -- Attack 2
                 DisableControlAction(0, 25, true) -- Aim
                 DisableControlAction(0, 263, true) -- Melee Attack 1
-                DisableControlAction(0, Keys["W"], true) -- W
-                DisableControlAction(0, Keys["U"], true) -- U
-                DisableControlAction(0, Keys["A"], true) -- A
+                DisableControlAction(0, 32, true) -- W
+                DisableControlAction(0, 303, true) -- U
+                DisableControlAction(0, 34, true) -- A
                 DisableControlAction(0, 31, true) -- S (fault in Keys table!)
                 DisableControlAction(0, 30, true) -- D (fault in Keys table!)
 
-                DisableControlAction(0, Keys["R"], true) -- Reload
-                DisableControlAction(0, Keys["SPACE"], true) -- Jump
-                DisableControlAction(0, Keys["Q"], true) -- Cover
-                DisableControlAction(0, Keys["TAB"], true) -- Select Weapon
-                DisableControlAction(0, Keys["F"], true) -- Also 'enter'?
+                DisableControlAction(0, 45, true) -- Reload
+                DisableControlAction(0, 22, true) -- Jump
+                DisableControlAction(0, 44, true) -- Cover
+                DisableControlAction(0, 37, true) -- Select Weapon
+                DisableControlAction(0, 23, true) -- Also 'enter'?
 
-                DisableControlAction(0, Keys["F1"], true) -- Disable phone
-                DisableControlAction(0, Keys["F2"], true) -- Inventory
-                DisableControlAction(0, Keys["F3"], true) -- Animations
-                DisableControlAction(0, Keys["F6"], true) -- Job
+                DisableControlAction(0, 288, true) -- Disable phone
+                DisableControlAction(0, 289, true) -- Inventory
+                DisableControlAction(0, 170, true) -- Animations
+                DisableControlAction(0, 167, true) -- Job
 
-                DisableControlAction(0, Keys["V"], true) -- Disable changing view
-                DisableControlAction(0, Keys["C"], true) -- Disable looking behind
-                DisableControlAction(0, Keys["X"], true) -- Disable clearing animation
-                DisableControlAction(2, Keys["P"], true) -- Disable pause screen
+                DisableControlAction(0, 0, true) -- Disable changing view
+                DisableControlAction(0, 26, true) -- Disable looking behind
+                DisableControlAction(0, 73, true) -- Disable clearing animation
+                DisableControlAction(2, 199, true) -- Disable pause screen
 
                 DisableControlAction(0, 59, true) -- Disable steering in vehicle
                 DisableControlAction(0, 71, true) -- Disable driving forward in vehicle
                 DisableControlAction(0, 72, true) -- Disable reversing in vehicle
 
-                DisableControlAction(2, Keys["LEFTCTRL"], true) -- Disable going stealth
+                DisableControlAction(2, 36, true) -- Disable going stealth
 
                 DisableControlAction(0, 47, true) -- Disable weapon
                 DisableControlAction(0, 264, true) -- Disable melee
@@ -422,19 +304,13 @@ Citizen.CreateThread(
 )
 
 RegisterNetEvent("esx_inventoryhud:closeInventory")
-AddEventHandler(
-    "esx_inventoryhud:closeInventory",
-    function()
+AddEventHandler("esx_inventoryhud:closeInventory", function()
         closeInventory()
-    end
-)
+    end)
 
 RegisterNetEvent("esx_inventoryhud:reloadPlayerInventory")
-AddEventHandler(
-    "esx_inventoryhud:reloadPlayerInventory",
-    function()
+AddEventHandler("esx_inventoryhud:reloadPlayerInventory", function()
         if isInInventory then
             loadPlayerInventory()
         end
-    end
-)
+    end)
