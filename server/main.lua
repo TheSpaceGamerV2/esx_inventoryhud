@@ -86,11 +86,15 @@ AddEventHandler("esx_inventoryhud:buyItem", function(item, amount)
 
 			if amount > 0 then
 				if playerItem.limit ~= -1 and (playerItem.count + amount) > playerItem.limit then
+					if Config.pNotify then
 					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("not_enough_space"),
 							type = "error",
 							timeout = 3000
 						})
+					else
+						TriggerClientEvent('esx:showNotification', _source, _U("not_enough_space"))
+					end
 				else
 					local price = amount * item.price
 
@@ -98,17 +102,25 @@ AddEventHandler("esx_inventoryhud:buyItem", function(item, amount)
 						xPlayer.removeMoney(price)
 						xPlayer.addInventoryItem(item.name, amount)
 
+						if Config.pNotify then
 						TriggerClientEvent("pNotify:SendNotification", _source, {
 								text = _U("bought", amount, item.label, item.price),
 								type = "success",
 								timeout = 3000
 							})
+						else
+							TriggerClientEvent('esx:showNotification', _source, _U("bought", amount, item.label, item.price))
+						end
 					else
+						if Config.pNotify then
 						TriggerClientEvent("pNotify:SendNotification", _source, {
 								text = _U("not_enough_money"),
 								type = "error",
 								timeout = 3000
 							})
+						else
+							TriggerClientEvent('esx:showNotification', _source, _U("not_enough_money"))
+						end
 					end
 				end
 			end
@@ -118,25 +130,37 @@ AddEventHandler("esx_inventoryhud:buyItem", function(item, amount)
 					xPlayer.removeMoney(item.price)
 					xPlayer.addWeapon(item.name, item.ammo)
 
+					if Config.pNotify then
 					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("bought", 1, item.label, item.price),
 							type = "success",
 							timeout = 3000
 						})
+					else
+						TriggerClientEvent('esx:showNotification', _source, _U("bought", 1, item.label, item.price))
+					end
 				else
+					if Config.pNotify then
 					TriggerClientEvent("pNotify:SendNotification", _source, {
 							text = _U("already_have_weapon"),
 							type = "error",
 							timeout = 3000
 						})
+					else
+						TriggerClientEvent('esx:showNotification', _source, _U("already_have_weapon"))
+					end
 				end
 			else
+				if Config.pNotify then
 				TriggerClientEvent("pNotify:SendNotification", _source,
 					{
 						text = _U("not_enough_money"),
 						type = "error",
 						timeout = 3000
 					})
+				else
+					TriggerClientEvent('esx:showNotification', _source, _U("not_enough_money"))
+				end
 			end
 		end
 	end)

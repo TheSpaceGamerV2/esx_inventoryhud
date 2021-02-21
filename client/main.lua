@@ -61,13 +61,17 @@ RegisterNUICallback("GetNearPlayers", function(data, cb)
         end
 
         if not foundPlayers then
-            exports.pNotify:SendNotification({
+            if Config.pNotify then
+                exports.pNotify:SendNotification({
                     text = _U("players_nearby"),
                     type = "error",
                     timeout = 3000,
                     layout = "bottomCenter",
                     queue = "inventoryhud"
                 })
+            else
+                ESX.ShowNotification(_U("players_nearby"), false, false, 90)
+            end
         else
             SendNUIMessage({
                     action = "nearPlayers",
@@ -131,6 +135,7 @@ RegisterNUICallback("GiveItem", function(data, cb)
             Wait(250)
             loadPlayerInventory()
         else
+            if Config.pNotify then
             exports.pNotify:SendNotification({
                     text = _U("player_nearby"),
                     type = "error",
@@ -138,6 +143,9 @@ RegisterNUICallback("GiveItem", function(data, cb)
                     layout = "bottomCenter",
                     queue = "inventoryhud"
                 })
+            else
+                ESX.ShowNotification(_U("player_nearby"), false, false, 90)
+            end
         end
         cb("ok")
     end)

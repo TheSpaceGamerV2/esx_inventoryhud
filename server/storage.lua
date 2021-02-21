@@ -44,29 +44,41 @@ AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item,
                     if count > 0 and inventoryItem.count >= count then
                         -- can the player carry the said amount of x item?
                         if sourceItem.limit ~= -1 and (sourceItem.count + count) > sourceItem.limit then
+                            if Config.pNotify then
                             TriggerClientEvent("pNotify:SendNotification",_source, {
                                     text = _U("not_enough_space"),
                                     type = "error",
                                     timeout = 3000
                                 })
+                            else
+                                TriggerClientEvent('esx:showNotification', _source, _U("not_enough_space"))
+                            end
                         else
                             inventory.removeItem(item, count)
                             xPlayer.addInventoryItem(item, count)
 
                             TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "TAKE", inventoryItem.label, count, inventoryItem.count - count)
 
+                            if Config.pNotify then
                             TriggerClientEvent("pNotify:SendNotification", _source, {
                                     text = _U("took_from_storage", count, inventoryItem.label),
                                     type = "success",
                                     timeout = 3000
                                 })
+                            else
+                                TriggerClientEvent('esx:showNotification', _source, _U("took_from_storage", count, inventoryItem.label))
+                            end
                         end
                     else
+                        if Config.pNotify then
                         TriggerClientEvent("pNotify:SendNotification", _source, {
                                 text = _U("took_not_enough"),
                                 type = "error",
                                 timeout = 3000
                             })
+                        else
+                            TriggerClientEvent('esx:showNotification', _source, _U("took_not_enough"))
+                        end
                     end
                 end)
         elseif type == "item_account" then
@@ -79,11 +91,15 @@ AddEventHandler("esx_inventoryhud:getStorageItem", function(storage, type, item,
 
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "TAKE", "Špinavé prachy", count, roomAccountMoney)
                     else
+                        if Config.pNotify then
                         TriggerClientEvent("pNotify:SendNotification",xPlayer.source, {
                                 text = _U("bad_amount"),
                                 type = "error",
                                 timeout = 3000
                             })
+                        else
+                            TriggerClientEvent('esx:showNotification', _source, _U("bad_amount"))
+                        end
                     end
                 end)
         elseif type == "item_weapon" then
@@ -135,18 +151,26 @@ AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item,
                         local inventoryItem = inventory.getItem(item)
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "PUT", inventoryItem.label, count, inventoryItem.count)
 
+                        if Config.pNotify then
                         TriggerClientEvent("pNotify:SendNotification", _source, {
                                 text = _U("put_into_storage", count, inventoryItem.label),
                                 type = "success",
                                 timeout = 3000
                             })
+                        else
+                            TriggerClientEvent('esx:showNotification', _source, _U("put_into_storage", count, inventoryItem.label))
+                        end
                     end)
             else
+                if Config.pNotify then
                 TriggerClientEvent("pNotify:SendNotification", xPlayer.source, {
                         text = _U("bad_amount"),
                         type = "error",
                         timeout = 3000
                     })
+                else
+                    TriggerClientEvent('esx:showNotification', _source, _U("bad_amount"))
+                end
             end
         elseif type == "item_account" then
             local playerAccountMoney = xPlayer.getAccount(item).money
@@ -161,11 +185,15 @@ AddEventHandler("esx_inventoryhud:putStorageItem", function(storage, type, item,
                         TriggerEvent("esx_adminmenu:logSociety", storage, GetPlayerIdentifiers(_source), xPlayer, "PUT", "Špinavé prachy", count, account.money + count)
                     end)
             else
+                if Config.pNotify then
                 TriggerClientEvent("pNotify:SendNotification", xPlayer.source, {
                         text = _U("bad_amount"),
                         type = "error",
                         timeout = 3000
                     })
+                else
+                    TriggerClientEvent('esx:showNotification', _source, _U("bad_amount"))
+                end
             end
         elseif type == "item_weapon" then
             TriggerEvent(Config.Events["getSharedDataStore"], storage, function(store)
